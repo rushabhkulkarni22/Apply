@@ -59,8 +59,9 @@ Current limits:
   An unrecognized page blocks rather than falling back to search-card content.
 - The existing discovery batch limit remains. Filtering can produce fewer eligible
   jobs; it does not automatically replenish the batch to hit an application target.
-- Naukri and the manual-search stage do not use these new checks yet.
-- The current CLI still starts desktop UI on import of `hr_apply.py`; extracting a
-  side-effect-free application engine is the next refactoring phase.
+- The local workflow is LinkedIn-only. Manual web imports use the same title and
+  skill policy in the deployable application.
+- The current CLI still initializes the local workflow on import of `hr_apply.py`;
+  extracting a side-effect-free application engine remains a refactoring phase.
 - This prototype does not establish permitted commercial LinkedIn automation;
   the platform-access dependency remains documented in PRODUCT_ARCHITECTURE.md.

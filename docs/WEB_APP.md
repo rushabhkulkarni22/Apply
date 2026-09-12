@@ -111,6 +111,11 @@ titles and selected locations. The applicant reviews a current listing and impor
 its description for ApplyWell's role, skill, experience, and location checks. This
 does not scrape LinkedIn or claim an unsupported automated LinkedIn integration.
 
+Uploading a resume creates the applicant profile; it does not populate jobs. Job
+rows appear only after the applicant imports a listing or a licensed feed is
+configured. Automated browser control and copied LinkedIn session cookies are not
+part of the hosted architecture.
+
 Without a configured provider, real accounts use **manual application mode**.
 Users add job descriptions and structured requirements from the original listing.
 URLs are not scraped. The worker prepares matching job handoffs. Users open those

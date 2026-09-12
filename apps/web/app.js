@@ -50,7 +50,7 @@ function linkedinSearches(){
 function linkedinPanel(){
   const searches=linkedinSearches();
   if(!searches.length)return '';
-  return `<section class="search-panel"><div><span class="eyebrow">SEARCH CURRENT LISTINGS</span><h2>Open your searches on LinkedIn</h2><p>These links use your exact approved titles and selected locations. Review a listing, then add its description here for the three-skill eligibility check.</p></div><div class="search-links">${searches.map(item=>`<a class="button secondary small" href="${esc(item.url)}" target="_blank" rel="noopener noreferrer">${esc(item.label)} ↗</a>`).join('')}</div></section>`;
+  return `<section class="search-panel"><div><span class="eyebrow">SEARCH CURRENT LISTINGS</span><h2>Open your searches on LinkedIn</h2><p>LinkedIn results remain on LinkedIn and are not copied automatically. Open a search, choose a listing, then paste its description here. ApplyWell will accept it only when the exact title and at least ${state.profile.minimum_skills} selected skills match.</p></div><div class="search-links">${searches.map(item=>`<a class="button secondary small" href="${esc(item.url)}" target="_blank" rel="noopener noreferrer">${esc(item.label)} ↗</a>`).join('')}</div></section>`;
 }
 function jobCard(j){return `<article class="job-card"><div class="job-top"><div class="company-logo">${esc(initials(j.company))}</div><div><h3>${esc(j.title)}</h3><p>${esc(j.company)}</p></div>${badge(j.match.status)}</div><div class="job-details"><span>⌖ ${esc(j.work_mode==='remote'?'Remote':j.location||'Location unknown')}</span><span>◷ ${j.minimum_experience===null?'Experience unknown':esc(j.minimum_experience)+'+ years'}</span><span>${esc(money(j.salary_max_inr))}</span></div><div class="tags">${(j.match.matched_skills||[]).map(s=>`<b>${esc(s)}</b>`).join('')}</div><div class="job-bottom"><p>${esc(j.application_status?'Already in your tracker · '+j.application_status.toLowerCase():j.match.reason)}</p><a href="${esc(j.url)}" target="_blank" rel="noopener noreferrer" aria-label="View ${esc(j.title)} at ${esc(j.company)}">View ↗</a></div></article>`;}
 function overview(){
@@ -95,6 +95,8 @@ function render(){
 }
 async function openRun(){
   if(!state.resumes.length||!state.profile){location.hash='profile';toast('Upload a resume and confirm your profile first.');return;}
+  const eligible=state.jobs.filter(job=>job.match.status==='ELIGIBLE'&&!job.application_status);
+  if(!eligible.length){location.hash='jobs';toast('No eligible jobs are ready. Open a LinkedIn search, then add a listing for evaluation.',true);return;}
   $('#run-resume').innerHTML=state.resumes.map(r=>`<option value="${r.id}">${esc(r.filename)}</option>`).join('');
   const dailyAvailable=state.user.demo||state.config.delivery==='provider';
   $('#daily-option').hidden=!dailyAvailable;

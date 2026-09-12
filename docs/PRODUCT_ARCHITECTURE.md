@@ -54,16 +54,16 @@ Specific findings:
    mandatory matching decision between opening the job and filling the form.
 5. Pending jobs are restored from SQLite; a full queue can skip new discovery.
    These jobs must be evaluated again against current profile/preferences.
-6. Importing the module opens a Tkinter popup, initializes an LLM, reads a fixed PDF,
-   and eventually invokes the graph. Importing application code must become side-effect free.
+6. Importing the module initializes an LLM, reads a fixed PDF, and eventually invokes
+   the graph. Importing application code must become side-effect free.
 7. A fixed local PDF is parsed through PyMuPDF. There is no implemented web upload
    or explicit DOCX parser in this entry point.
 8. Candidate values, browser profile paths, and application targets are global.
    They cannot safely represent multiple customers.
 9. Compensation constants contain annual rupee values despite names ending in LPA.
    Model amount, currency, period, and display units explicitly.
-10. The Naukri location helper is centered on Pune. Replace it with each user's
-    configured locations; city-center distance is approximate, not commute distance.
+10. The web matcher uses each user's selected cities or states and an internal city
+    catalogue; city-center distance remains approximate, not commute distance.
 11. Submission confirmation exists, but some checks search the whole page.
     Confirmation must be tied to the current job and attempt before counting usage.
 
@@ -74,7 +74,7 @@ Moving functions into smaller files alone will not resolve these behavior proble
 LinkedIn states that third-party tools that automate activity on its website are
 not allowed. A browser extension or a user-local browser does not remove that restriction.
 Google sign-in authenticates users to our website; it does not grant access to their
-LinkedIn or Naukri account or permission to submit applications there.
+LinkedIn account or permission to submit applications there.
 
 LinkedIn Apply Connect is an ATS integration. Do not assume it is a public API for
 an applicant-side service to submit applications to arbitrary jobs.
