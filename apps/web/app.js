@@ -150,8 +150,8 @@ async function init(){
   try{
     state.config=await api('/config');
     document.querySelectorAll('[data-action="demo"]').forEach(b=>b.hidden=!state.config.demo_enabled);
-    $('#google-unavailable').hidden=!!state.config.google_client_id;
-    if(state.config.google_client_id){
+    $('#google-unavailable').hidden=state.config.google_ready;
+    if(state.config.google_ready){
       loadScript('https://accounts.google.com/gsi/client').then(()=>{
         google.accounts.id.initialize({client_id:state.config.google_client_id,callback:async(result)=>{try{state.user=await api('/auth/google',{method:'POST',body:{credential:result.credential}});authenticated();await refresh();}catch(e){toast(e.message,true);}}});
         google.accounts.id.renderButton($('#google-button'),{theme:'outline',size:'large',width:360});

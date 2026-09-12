@@ -91,7 +91,9 @@ def create_app(settings=None):
 
     @app.get('/api/config')
     def public_config():
-        return {'google_client_id': settings.google_client_id, 'demo_enabled': settings.demo_enabled,
+        google_ready = bool(settings.google_client_id and not settings.google_client_id.startswith('setup-required'))
+        return {'google_client_id': settings.google_client_id if google_ready else '', 'google_ready': google_ready,
+                'demo_enabled': settings.demo_enabled,
                 'delivery': 'provider' if settings.provider_url else 'manual', 'sales_enabled': settings.sales_enabled,
                 'price_inr': 199, 'free_limit': 10, 'daily_limit': 40, 'pass_days': 7}
 

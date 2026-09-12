@@ -254,6 +254,15 @@ def test_production_configuration_guard(monkeypatch):
         Settings.from_env()
 
 
+def test_placeholder_google_client_is_not_exposed(system):
+    _, _, settings, _ = system
+    pending = replace(settings, google_client_id='setup-required.apps.googleusercontent.com')
+    with TestClient(create_app(pending)) as client:
+        config = client.get('/api/config').json()
+        assert config['google_ready'] is False
+        assert config['google_client_id'] == ''
+
+
 def test_paid_daily_cap(system):
     client, db, settings, user = system
     client.post('/api/billing/demo-pass')
