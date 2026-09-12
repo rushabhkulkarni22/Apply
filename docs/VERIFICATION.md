@@ -11,6 +11,8 @@ Node.js 24.19.0 (official distribution, SHA-256 checked against Node's checksum 
 | Existing matching and screening regression tests | 34 passed |
 | Browser acceptance flow against compiled frontend | Passed |
 | Mobile horizontal-overflow check at 390px | Passed |
+| Supabase PostgreSQL schema migration | Version 2 live |
+| Render Docker deployment and public health check | Passed |
 
 The browser flow covered demo login, PDF upload, profile confirmation, job import,
 wrong-role exclusion, ten simulated applications, demo pass activation, mobile
@@ -39,7 +41,10 @@ With the server/worker running from `python -m backend.run`:
 Screenshots are written to ignored `artifacts/`. Tests use temporary databases and
 generated resumes. No real application or payment was submitted during verification.
 
-Not verified: live Google OAuth credentials, live Razorpay transactions, an actual
-application provider, Docker image execution, PostgreSQL runtime, public DNS/TLS,
-or cloud deployment. These require the target accounts/environment. Backend tests
-currently emit upstream Starlette/httpx deprecation warnings; the tested flows pass.
+Public deployment: `https://applywell-rushabh.onrender.com`. Its homepage and health
+endpoint return HTTP 200, PostgreSQL is connected, demo mode is disabled, sales are
+disabled, and delivery is currently manual.
+
+Not verified: live Google OAuth credentials, live Razorpay transactions, or an
+actual application provider. Backend tests currently emit upstream Starlette/httpx
+deprecation warnings; the tested flows pass.
