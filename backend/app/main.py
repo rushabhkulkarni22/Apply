@@ -252,7 +252,7 @@ def create_app(settings=None):
     @app.get('/api/usage')
     def get_usage(user=Depends(current_user)):
         with db.sessions() as session:
-            return {**usage(session, user.id), 'demo': user.demo}
+            return {**usage(session, user.id, owner=settings.is_owner(user.email)), 'demo': user.demo}
 
     @app.post('/api/runs')
     def create_run(body: RunInput, request: Request, user=Depends(current_user)):
@@ -270,7 +270,7 @@ def create_app(settings=None):
             if not profile or not profile.data.get('confirmed'):
                 raise HTTPException(422, 'Confirm your profile first')
             owned(session, Resume, body.resume_id, user.id)
-            allowance = usage(session, user.id)
+            allowance = usage(session, user.id, owner=settings.is_owner(user.email))
             mode = 'demo' if user.demo else 'provider' if settings.provider_url else 'manual'
             if body.daily and (not allowance['paid'] or mode == 'manual'):
                 raise HTTPException(422, 'Daily application scheduling requires an active pass and supported delivery')
@@ -393,7 +393,7 @@ def create_app(settings=None):
             active = session.scalar(select(Attempt.id).where(Attempt.user_id == user.id,Attempt.status.in_(['SUBMITTING','UNCERTAIN'])).limit(1))
             if active:
                 raise HTTPException(409,'An in-flight or uncertain application must be reconciled before account removal')
-            account.prior_free_usage = usage(session,user.id)['free_used']
+            account.prior_free_usage = usage(session,user.id,owner=settings.is_owner(user.email))['free_used']
             for resume in session.scalars(select(Resume).where(Resume.user_id == user.id)):
                 try:
                     delete_resume_file(settings, resume)

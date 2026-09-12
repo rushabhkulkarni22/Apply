@@ -45,7 +45,7 @@ def tick(db, settings):
             run.status, run.message = 'PAUSED', 'Profile changed. Create a new run after reviewing your matches.'
             return True
         if run.status == 'SCHEDULED':
-            if not usage(session, user.id)['paid']:
+            if not usage(session, user.id, owner=settings.is_owner(user.email))['paid']:
                 run.status, run.message = 'COMPLETE', 'Seven-day pass ended. Daily scheduling stopped.'
                 return True
             existing = set(session.scalars(select(Attempt.job_id).where(Attempt.user_id == user.id)))
@@ -63,7 +63,7 @@ def tick(db, settings):
             if uncertain:
                 run.status, run.message = 'NEEDS_REVIEW', 'An uncertain submission requires provider reconciliation.'
             elif run.daily:
-                allowance = usage(session, user.id)
+                allowance = usage(session, user.id, owner=settings.is_owner(user.email))
                 if allowance['paid']:
                     run.status, run.next_at, run.message = 'SCHEDULED', allowance['resets_at'], 'Next daily run will check newly imported matching jobs.'
                 else:
@@ -84,9 +84,9 @@ def tick(db, settings):
         if not resume or resume.user_id != user.id or not resume_exists(resume):
             run.status, run.message = 'PAUSED', 'Resume is unavailable. Upload a resume and create a new run.'
             return True
-        credit = reserve(session, user.id, attempt.id)
+        credit = reserve(session, user.id, attempt.id, owner=settings.is_owner(user.email))
         if not credit:
-            allowance = usage(session, user.id)
+            allowance = usage(session, user.id, owner=settings.is_owner(user.email))
             run.status, run.message = 'WAITING_QUOTA', 'Application allowance exhausted. Upgrade or wait for your next quota window.'
             run.next_at = allowance['resets_at'] or now+DAY
             return True

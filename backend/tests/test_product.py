@@ -307,6 +307,26 @@ def test_paid_daily_cap(system):
         assert usage(session,user['id'],reset+1)['remaining'] == 40
 
 
+def test_verified_owner_access_does_not_expire(system):
+    client, db, settings, user = system
+    owner_settings = replace(settings, owner_emails='other@example.com, RUSHABHKULKARNI.NMIMS@GMAIL.COM ')
+    assert owner_settings.is_owner('rushabhkulkarni.nmims@gmail.com')
+    with db.transaction() as session:
+        account = session.get(User, user['id'])
+        account.email = 'rushabhkulkarni.nmims@gmail.com'
+    with TestClient(create_app(owner_settings)) as owner_client:
+        login = owner_client.post('/api/auth/demo').json()
+        owner_client.headers['X-CSRF-Token'] = login['csrf']
+        with owner_client.app.state.db.transaction() as session:
+            account = session.get(User, login['id'])
+            account.email = 'rushabhkulkarni.nmims@gmail.com'
+        allowance = owner_client.get('/api/usage').json()
+        assert allowance['owner_access'] is True
+        assert allowance['paid'] is True
+        assert allowance['expires_at'] is None
+        assert allowance['remaining'] == 40
+
+
 def test_daily_schedule_stops_at_expiry(system):
     client, db, settings, user = system
     client.post('/api/billing/demo-pass')

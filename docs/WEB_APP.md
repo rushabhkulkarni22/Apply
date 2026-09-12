@@ -129,6 +129,11 @@ browser automation prototype remains separate and is not used by website account
 
 ## Payments and allowances
 
+`OWNER_EMAILS` accepts a comma-separated allowlist of verified Google account
+emails. These accounts receive non-expiring owner access while keeping the normal
+40-confirmed-applications-per-day operational limit. The email comparison is
+case-insensitive; access is still subject to the configured delivery mode.
+
 Set `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`, and `RAZORPAY_WEBHOOK_SECRET`.
 Use test credentials first. Configure `/api/billing/webhook` for `payment.captured`
 and `refund.processed`. The verified capture must have INR 19900 paise and belong

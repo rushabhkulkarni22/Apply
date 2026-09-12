@@ -9,7 +9,7 @@ def lock_user(session, user_id):
     return session.scalar(select(User).where(User.id == user_id).with_for_update())
 
 
-def usage(session, user_id, now=None):
+def usage(session, user_id, now=None, owner=False):
     now = time.time() if now is None else now
     free = session.scalar(select(func.count()).select_from(Credit).where(
         Credit.user_id == user_id, Credit.bucket == 'free', Credit.status.in_(['RESERVED', 'CONSUMED'])))
@@ -20,7 +20,15 @@ def usage(session, user_id, now=None):
         Entitlement.expires_at > now, Entitlement.revoked == False).order_by(Entitlement.starts_at.desc()))
     result = {'free_used': free, 'free_remaining': max(0, 10-free), 'paid': False,
               'daily_used': 0, 'daily_limit': 40, 'remaining': max(0, 10-free),
-              'bucket': 'free', 'expires_at': None, 'resets_at': None}
+              'bucket': 'free', 'expires_at': None, 'resets_at': None, 'owner_access': owner}
+    if owner:
+        window = int(now // DAY)
+        bucket = f'owner:{window}'
+        used = session.scalar(select(func.count()).select_from(Credit).where(
+            Credit.user_id == user_id, Credit.bucket == bucket, Credit.status.in_(['RESERVED', 'CONSUMED'])))
+        result.update(paid=True, bucket=bucket, daily_used=used, remaining=max(0, 40-used),
+                      resets_at=(window+1)*DAY)
+        return result
     if entitlement:
         window = int((now-entitlement.starts_at)//DAY)
         bucket = f'{entitlement.id}:{window}'
@@ -32,12 +40,12 @@ def usage(session, user_id, now=None):
     return result
 
 
-def reserve(session, user_id, attempt_id):
+def reserve(session, user_id, attempt_id, owner=False):
     lock_user(session, user_id)
     existing = session.scalar(select(Credit).where(Credit.attempt_id == attempt_id))
     if existing:
         return existing if existing.status == 'RESERVED' else None
-    allowance = usage(session, user_id)
+    allowance = usage(session, user_id, owner=owner)
     if allowance['remaining'] <= 0:
         return None
     credit = Credit(user_id=user_id, attempt_id=attempt_id, bucket=allowance['bucket'])

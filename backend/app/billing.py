@@ -39,7 +39,7 @@ def checkout(db, settings, user):
     with db.transaction() as session:
         from .usage import lock_user, usage
         lock_user(session, user.id)
-        if usage(session, user.id)['paid']:
+        if usage(session, user.id, owner=settings.is_owner(user.email))['paid']:
             raise HTTPException(409, 'Your seven-day pass is already active')
         order = session.scalar(select(Payment).where(Payment.user_id == user.id, Payment.status == 'CREATED',
                                                      Payment.created_at > time.time()-3600).order_by(Payment.created_at.desc()))

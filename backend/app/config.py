@@ -14,6 +14,7 @@ class Settings:
     environment: str = 'development'
     demo_enabled: bool = True
     google_client_id: str = ''
+    owner_emails: str = ''
     razorpay_key_id: str = ''
     razorpay_key_secret: str = ''
     razorpay_webhook_secret: str = ''
@@ -22,6 +23,10 @@ class Settings:
     job_feed_url: str = ''
     sales_enabled: bool = False
     session_seconds: int = 86400
+
+    def is_owner(self, email):
+        allowed = {value.strip().lower() for value in self.owner_emails.split(',') if value.strip()}
+        return bool(email and email.strip().lower() in allowed)
 
     @classmethod
     def from_env(cls):
