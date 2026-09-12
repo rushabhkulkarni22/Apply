@@ -57,24 +57,37 @@ def checkout(db, settings, user):
 
 
 def process_webhook(db, settings, event_id, payload):
-    entity = payload.get('payload', {}).get('payment', {}).get('entity', {})
+    payment_entity = payload.get('payload', {}).get('payment', {}).get('entity', {})
+    refund_entity = payload.get('payload', {}).get('refund', {}).get('entity', {})
     event = payload.get('event', '')
+    entity = payment_entity
     with db.transaction() as session:
         from .usage import lock_user
-        order = session.scalar(select(Payment).where(Payment.order_id == entity.get('order_id', '')))
+        if event == 'refund.processed':
+            payment_id = refund_entity.get('payment_id', '')
+            order = session.scalar(select(Payment).where(Payment.payment_id == payment_id))
+        else:
+            order = session.scalar(select(Payment).where(Payment.order_id == entity.get('order_id', '')))
         if order:
             lock_user(session,order.user_id)
             order = session.scalar(select(Payment).where(Payment.id == order.id).with_for_update().execution_options(populate_existing=True))
         if session.get(WebhookEvent, event_id):
             return
-        if event in ('payment.captured', 'payment.refunded'):
+        if event in ('payment.captured', 'payment.refunded', 'refund.processed'):
             if not order:
                 raise HTTPException(409, 'Order is not recorded yet; retry delivery')
             if event == 'payment.captured':
                 capture(session, order, entity)
             else:
-                order.status = 'REFUNDED'
-                entitlement = session.scalar(select(Entitlement).where(Entitlement.payment_id == entity.get('id', '')))
-                if entitlement:
-                    entitlement.revoked = True
+                # Razorpay includes both entities for refund.processed. A partial
+                # refund does not revoke the full pass; a completed full refund does.
+                full_refund = event == 'payment.refunded' or (
+                    refund_entity.get('status') == 'processed' and
+                    payment_entity.get('amount_refunded', 0) >= payment_entity.get('amount', 1)
+                )
+                if full_refund:
+                    order.status = 'REFUNDED'
+                    entitlement = session.scalar(select(Entitlement).where(Entitlement.payment_id == order.payment_id))
+                    if entitlement:
+                        entitlement.revoked = True
         session.add(WebhookEvent(id=event_id))

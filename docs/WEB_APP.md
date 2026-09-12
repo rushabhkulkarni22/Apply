@@ -131,7 +131,7 @@ browser automation prototype remains separate and is not used by website account
 
 Set `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`, and `RAZORPAY_WEBHOOK_SECRET`.
 Use test credentials first. Configure `/api/billing/webhook` for `payment.captured`
-and `payment.refunded`. The verified capture must have INR 19900 paise and belong
+and `refund.processed`. The verified capture must have INR 19900 paise and belong
 to the recorded order. A browser success screen cannot grant access by itself.
 
 Set `SALES_ENABLED=true` only after supported provider delivery has been tested and

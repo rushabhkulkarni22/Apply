@@ -244,11 +244,25 @@ def test_payment_duplicates_and_refund(system):
     process_webhook(db,settings,'event_2',payload)
     with db.sessions() as session:
         assert len(session.scalars(select(Entitlement)).all()) == 1
-    payload['event']='payment.refunded'
+    payload={'event':'refund.processed','payload':{
+        'refund':{'entity':{'id':'rfnd_1','payment_id':'pay_1','amount':19900,'status':'processed'}},
+        'payment':{'entity':{**payment,'amount_refunded':19900,'refund_status':'full'}}}}
     process_webhook(db,settings,'event_3',payload)
-    payload['event']='payment.captured'
-    process_webhook(db,settings,'event_4',payload)
     assert client.get('/api/usage').json()['paid'] is False
+
+
+def test_partial_refund_does_not_revoke_pass(system):
+    client, db, settings, user = system
+    with db.transaction() as session:
+        session.add(Payment(user_id=user['id'], order_id='order_partial', payment_id='pay_partial', status='CAPTURED'))
+        activate_pass(session, user['id'], 'pay_partial')
+    payload={'event':'refund.processed','payload':{
+        'refund':{'entity':{'id':'rfnd_partial','payment_id':'pay_partial','amount':100,'status':'processed'}},
+        'payment':{'entity':{'id':'pay_partial','order_id':'order_partial','amount':19900,
+                             'amount_refunded':100,'currency':'INR','status':'captured','refund_status':'partial'}}}}
+    from backend.app.billing import process_webhook
+    process_webhook(db, settings, 'event-partial', payload)
+    assert client.get('/api/usage').json()['paid'] is True
 
 
 def test_invalid_payment_and_auth(system):

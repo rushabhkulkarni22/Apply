@@ -70,7 +70,7 @@ Create Razorpay API keys in test mode first. In Razorpay Webhooks, add:
 https://<service>.onrender.com/api/billing/webhook
 ```
 
-Subscribe to `payment.captured` and `payment.refunded`, and use the same webhook
+Subscribe to `payment.captured` and `refund.processed`, and use the same webhook
 secret in Razorpay and `RAZORPAY_WEBHOOK_SECRET`. The server checks the signature,
 recorded order, captured status, INR currency, and exact amount of 19900 paise
 before granting the one-time seven-day pass. Run one real INR 199 transaction and
