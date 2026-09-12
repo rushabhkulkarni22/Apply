@@ -2,6 +2,7 @@ from dataclasses import asdict
 import math
 import time
 from job_applications.matching import JobSnapshot, MatchPolicy, canonical_skill, evaluate_job, fingerprint
+from .locations import infer_job_location, location_record, selected_cities
 
 
 def distance_km(lat1, lon1, lat2, lon2):
@@ -38,12 +39,25 @@ def match(profile, job):
     if mode not in profile['work_modes']:
         return stop('REJECTED', 'Work mode does not match your preference')
     if mode != 'remote':
-        if job.get('latitude') is None or job.get('longitude') is None:
-            return stop('NEEDS_REVIEW', 'Job coordinates are unavailable for radius filtering')
-        distance = distance_km(profile['latitude'], profile['longitude'], job['latitude'], job['longitude'])
-        result['distance_km'] = round(distance, 1)
-        if distance > profile['radius_km']:
-            return stop('REJECTED', f"Outside your {profile['radius_km']:g} km radius ({distance:.0f} km away)")
+        selections = profile.get('preferred_locations') or [profile.get('preferred_city', 'Pune')]
+        cities = selected_cities(selections)
+        job_place = infer_job_location(job.get('location', ''))
+        job_coordinates = ((job.get('latitude'), job.get('longitude'))
+                           if job.get('latitude') is not None and job.get('longitude') is not None
+                           else job_place[2] if job_place and job_place[2] else None)
+        selected_states = {value[6:] for value in selections if value.startswith('state:')}
+        if job_place and (job_place[0] in selected_states or job_place[1] in cities):
+            pass
+        elif not job_coordinates:
+            return stop('NEEDS_REVIEW', 'Job city is unknown; confirm whether it matches your selected locations')
+        else:
+            origins = [location_record(city)[2] for city in cities if location_record(city)]
+            if not origins:
+                return stop('NEEDS_REVIEW', 'Select at least one supported city for nearby matching')
+            distance = min(distance_km(*origin, *job_coordinates) for origin in origins)
+            result['distance_km'] = round(distance, 1)
+            if distance > profile['radius_km']:
+                return stop('REJECTED', f"Outside your {profile['radius_km']:g} km nearby area ({distance:.0f} km away)")
     if profile.get('strict_salary'):
         if job.get('salary_max_inr') is None:
             return stop('NEEDS_REVIEW', 'Salary is not disclosed')

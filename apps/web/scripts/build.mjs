@@ -8,7 +8,7 @@ const outdir = path.join(root, 'dist');
 await mkdir(outdir, { recursive: true });
 const result = await build({
   absWorkingDir: root,
-  entryPoints: ['app.js', 'styles.css'],
+  entryPoints: ['app.js', 'styles.css', 'locations.css'],
   entryNames: '[name]-[hash]',
   bundle: true,
   minify: true,
@@ -27,7 +27,7 @@ for (const [output, metadata] of Object.entries(result.metafile.outputs)) {
   html = html.replace(`/static/${input}`, `/static/${filename}`);
   manifest[input] = { file: filename, bytes: metadata.bytes };
 }
-if (!manifest['app.js'] || !manifest['styles.css']) throw new Error('Missing built entry points');
+if (!manifest['app.js'] || !manifest['styles.css'] || !manifest['locations.css']) throw new Error('Missing built entry points');
 // Write the entry document last, so it never references a partially written build.
 await writeFile(path.join(outdir, 'manifest.json'), JSON.stringify(manifest, null, 2));
 await writeFile(path.join(outdir, 'index.html'), html);

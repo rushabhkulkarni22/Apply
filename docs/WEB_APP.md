@@ -100,6 +100,17 @@ Source: [Google server-side verification](https://developers.google.com/identity
 
 ## Job discovery and delivery
 
+Applicants select one or more Indian cities or states from the preference form.
+Latitude and longitude are internal catalogue metadata and are never requested from
+the applicant. On-site and hybrid listings are accepted when their named location
+matches a selection or falls within the chosen nearby radius of a selected city.
+Unknown listing locations remain in review instead of being guessed.
+
+The Jobs page creates LinkedIn search links from the applicant's exact approved
+titles and selected locations. The applicant reviews a current listing and imports
+its description for ApplyWell's role, skill, experience, and location checks. This
+does not scrape LinkedIn or claim an unsupported automated LinkedIn integration.
+
 Without a configured provider, real accounts use **manual application mode**.
 Users add job descriptions and structured requirements from the original listing.
 URLs are not scraped. The worker prepares matching job handoffs. Users open those

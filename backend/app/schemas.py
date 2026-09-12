@@ -20,8 +20,9 @@ class ProfileInput(StrictModel):
     current_ctc_inr: int = Field(default=0, ge=0, le=100000000)
     expected_ctc_inr: int = Field(default=0, ge=0, le=100000000)
     preferred_city: str = Field(default='Pune', max_length=100)
-    latitude: float = Field(default=18.5204, ge=-90, le=90)
-    longitude: float = Field(default=73.8567, ge=-180, le=180)
+    preferred_locations: list[str] = Field(default=['Pune'], min_length=1, max_length=25)
+    latitude: float | None = Field(default=None, ge=-90, le=90)
+    longitude: float | None = Field(default=None, ge=-180, le=180)
     radius_km: float = Field(default=50, ge=1, le=20000)
     work_modes: list[Literal['remote', 'hybrid', 'onsite']] = Field(default=['remote', 'hybrid'], min_length=1)
     strict_salary: bool = False
@@ -41,6 +42,21 @@ class ProfileInput(StrictModel):
         if self.minimum_skills > len(selected) or not selected <= {canonical_skill(s) for s in self.skills}:
             raise ValueError('Selected skills must be confirmed profile skills; minimum cannot exceed distinct selections')
         return self
+
+    @field_validator('preferred_locations')
+    @classmethod
+    def valid_locations(cls, values):
+        from .locations import INDIA_LOCATIONS, location_record
+        cleaned = list(dict.fromkeys(value.strip() for value in values if value.strip()))
+        for value in cleaned:
+            if value.startswith('state:'):
+                if value[6:] not in INDIA_LOCATIONS:
+                    raise ValueError(f'Unsupported state: {value[6:]}')
+            elif not location_record(value):
+                raise ValueError(f'Unsupported city: {value}')
+        if not cleaned:
+            raise ValueError('Select at least one city or state')
+        return cleaned
 
 
 class JobInput(StrictModel):

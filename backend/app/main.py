@@ -20,6 +20,7 @@ from .config import ROOT, Settings
 from .database import Database
 from .demo import sample_jobs, sample_pdf, sample_profile
 from .matching import match
+from .locations import catalogue
 from .models import Attempt, Credit, Entitlement, Job, LoginSession, Payment, Profile, Resume, Run, User
 from .resumes import MAX_BYTES, parse_resume
 from .schemas import GoogleInput, JobInput, JobsInput, ProfileInput, RunInput, VerifyPayment
@@ -96,6 +97,10 @@ def create_app(settings=None):
                 'demo_enabled': settings.demo_enabled,
                 'delivery': 'provider' if settings.provider_url else 'manual', 'sales_enabled': settings.sales_enabled,
                 'price_inr': 199, 'free_limit': 10, 'daily_limit': 40, 'pass_days': 7}
+
+    @app.get('/api/locations')
+    def locations():
+        return {'country': 'India', 'regions': catalogue()}
 
     @app.post('/api/auth/demo')
     def demo_login(response: Response):

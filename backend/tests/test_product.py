@@ -129,7 +129,22 @@ def test_profile_rules():
     assert match(profile,{**jobs[0],'required_skills':['Java']})['status'] == 'REJECTED'
     assert match({**profile,'strict_salary':True},{**jobs[0],'salary_max_inr':None})['status'] == 'NEEDS_REVIEW'
     assert match({**profile,'strict_salary':True},{**jobs[0],'salary_max_inr':100})['status'] == 'REJECTED'
-    assert match(profile,{**jobs[0],'latitude':None})['status'] == 'NEEDS_REVIEW'
+    assert match(profile,{**jobs[0],'latitude':None,'longitude':None})['status'] == 'ELIGIBLE'
+    assert match(profile,{**jobs[0],'location':'Unspecified','latitude':None,'longitude':None})['status'] == 'NEEDS_REVIEW'
+    assert match({**profile,'preferred_locations':['Mumbai']},jobs[0])['status'] == 'REJECTED'
+    assert match({**profile,'preferred_locations':['state:Maharashtra']},jobs[0])['status'] == 'ELIGIBLE'
+
+
+def test_location_catalogue_and_profile_validation(system):
+    client, _, _, _ = system
+    regions = client.get('/api/locations').json()['regions']
+    assert any(region['state'] == 'Maharashtra' and 'Pune' in region['cities'] for region in regions)
+    profile = client.get('/api/profile').json()['data']
+    profile['preferred_locations'] = ['Pune', 'state:Karnataka']
+    profile['latitude'] = profile['longitude'] = None
+    assert client.put('/api/profile', json=profile).status_code == 200
+    profile['preferred_locations'] = ['Atlantis']
+    assert client.put('/api/profile', json=profile).status_code == 422
 
 
 def test_run_idempotency_pause_cancel_and_profile_change(system):
