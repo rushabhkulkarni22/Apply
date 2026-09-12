@@ -1,0 +1,16 @@
+{
+  "name": "applywell-web",
+  "version": "0.1.0",
+  "private": true,
+  "description": "ApplyWell browser frontend and reproducible production asset build",
+  "engines": {
+    "node": ">=24 <25"
+  },
+  "scripts": {
+    "check": "node --check app.js && node --check scripts/build.mjs",
+    "build": "npm run check && node scripts/build.mjs"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2"
+  }
+}

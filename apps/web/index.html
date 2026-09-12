@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Find roles that fit your skills. Prepare thoughtful applications and track every step.">
+  <title>ApplyWell — Your next chapter starts here</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='12' fill='%23125d4f'/%3E%3Cpath d='M10 28L20 10L30 28M15 22H25' fill='none' stroke='white' stroke-width='3'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/static/styles.css">
+  <script src="/static/app.js" defer></script>
+</head>
+<body>
+<div id="toast" role="status" aria-live="polite" hidden></div>
+<div id="landing">
+  <nav class="landing-nav"><a class="brand" href="/" aria-label="ApplyWell home"><span class="brand-mark">a<span>↗</span></span>applywell<span class="brand-dot">.</span></a><button class="button secondary" data-action="login">Sign in <span>↗</span></button></nav>
+  <main class="landing-main">
+    <div class="eyebrow"><span class="live-dot"></span> A MORE INTENTIONAL JOB SEARCH</div>
+    <h1>Your skills.<br>Your next <em>chapter.</em></h1>
+    <p class="hero-description">Less searching in circles. More opportunities that fit.<br>Turn your resume into a focused job search, with a clear reason for every match.</p>
+    <div class="hero-buttons"><button class="button primary large" data-action="login">Find my next role <span>↗</span></button><button class="text-button" data-action="demo">Explore the demo <span>→</span></button></div>
+    <p class="fine-print">10 free confirmed applications on supported delivery integrations. No auto-renewal.</p>
+    <div class="hero-preview">
+      <div class="preview-top"><span class="eyebrow">YOUR SEARCH, WITH DIRECTION</span><span class="badge green">A better fit</span></div>
+      <div class="preview-grid"><div class="preview-step"><span>01 / YOUR STORY</span><h3>A resume that<br>sets the direction.</h3><p>Upload a PDF or Word document.<br>Review your skills and preferences.</p></div><div class="preview-step"><span>02 / YOUR MATCHES</span><h3>Right role.<br>Real skill overlap.</h3><div class="tags"><b>Python</b><b>SQL</b><b>AWS</b></div></div><div class="preview-step"><span>03 / YOUR PROGRESS</span><h3>Every application.<br>One clear view.</h3><p>Know what was confirmed,<br>what needs you, and what comes next.</p></div></div>
+    </div>
+    <footer>Built for the next step, not the endless scroll. <span>PDF & DOCX · Google sign-in · ₹199 / 7 days</span></footer>
+  </main>
+</div>
+<div id="workspace" hidden>
+  <aside class="sidebar">
+    <a class="brand" href="#overview"><span class="brand-mark">a<span>↗</span></span>applywell<span class="brand-dot">.</span></a>
+    <div class="workspace-label">YOUR WORKSPACE</div>
+    <nav aria-label="Main navigation">
+      <a href="#overview" data-route="overview"><span class="nav-icon">◫</span>Overview</a>
+      <a href="#jobs" data-route="jobs"><span class="nav-icon">⌕</span>Job matches<span id="nav-count" class="nav-count">0</span></a>
+      <a href="#applications" data-route="applications"><span class="nav-icon">▤</span>Applications</a>
+      <a href="#profile" data-route="profile"><span class="nav-icon">◎</span>My profile & resume</a>
+      <a href="#billing" data-route="billing"><span class="nav-icon">◇</span>My plan</a>
+    </nav>
+    <div class="sidebar-bottom"><div class="plan-mini"><span class="tiny-icon">✦</span><strong>A little more momentum.</strong><p>40 applications a day.<br>One focused week.</p><a href="#billing">Explore the 7-day pass ↗</a></div><button class="account" data-action="logout"><span class="avatar" id="user-initials">AM</span><span><strong id="user-name">Your account</strong><small>Sign out</small></span><span>↪</span></button></div>
+  </aside>
+  <div class="main-shell"><header class="topbar"><div class="breadcrumb">Workspace <span>/</span> <strong id="breadcrumb">Overview</strong></div><div class="topbar-right"><span id="mode-pill" class="badge">Demo workspace</span><span class="small-avatar" id="top-avatar">A</span></div></header>
+    <main id="page" tabindex="-1"></main><footer class="app-footer">A little progress, every day. <span>ApplyWell · Your search, your choices.</span></footer>
+  </div>
+</div>
+<dialog id="login-dialog"><button class="dialog-close" data-action="close-dialog" aria-label="Close sign in">×</button><span class="eyebrow">A FRESH START</span><h2>Good things ahead.</h2><p>Sign in to save your resume, find matching roles, and follow your progress.</p><div id="google-button"></div><p id="google-unavailable" class="notice" hidden>Google sign-in hasn’t been configured on this deployment. You can explore a separate demo workspace.</p><button id="demo-login" class="button primary full" data-action="demo">Explore with sample data →</button><p class="fine-print">The demo simulates applications. It never contacts employers or charges you.</p></dialog>
+<dialog id="run-dialog"><button class="dialog-close" data-action="close-dialog" aria-label="Close application setup">×</button><span class="eyebrow">YOUR NEXT STEP</span><h2>Make a little progress.</h2><form id="run-form"><label>Resume<select name="resume_id" id="run-resume" required></select></label><label>Maximum applications in this run<input name="limit" type="number" min="1" max="40" value="10" required></label><label class="check"><input name="daily" type="checkbox">Check newly imported matching jobs daily while my pass is active</label><p id="run-mode-description" class="notice"></p><label class="check"><input name="authorized" type="checkbox" required>I confirm my profile and authorize this run for the matching jobs shown.</label><button class="button primary full" type="submit">Start this run ↗</button></form></dialog>
+<dialog id="import-dialog" class="wide-dialog"><button class="dialog-close" data-action="close-dialog" aria-label="Close import">×</button><span class="eyebrow">BRING YOUR OPPORTUNITIES</span><h2>Add a job to your search.</h2><form id="job-form"><div class="form-grid"><label>Job title<input name="title" placeholder="Data Engineer" required maxlength="200"></label><label>Company<input name="company" placeholder="Company name" required maxlength="200"></label><label class="span-2">Job URL<input name="url" type="url" placeholder="https://…" required></label><label>Experience required (years)<input name="minimum_experience" type="number" min="0" max="60" step="0.5" required></label><label>Work mode<select name="work_mode"><option value="remote">Remote</option><option value="hybrid">Hybrid</option><option value="onsite">On-site</option></select></label><label>Location<input name="location" placeholder="Pune"></label><label>Maximum annual salary (₹, optional)<input name="salary_max_inr" type="number" min="0"></label><label>Latitude (for on-site/hybrid)<input name="latitude" type="number" step="any" placeholder="18.5204" min="-90" max="90"></label><label>Longitude (for on-site/hybrid)<input name="longitude" type="number" step="any" placeholder="73.8567" min="-180" max="180"></label><label class="span-2">Explicitly required skills (comma separated)<input name="required_skills" placeholder="Python, SQL"></label><label class="span-2">Full job description<textarea name="description" rows="5" required placeholder="Paste the job responsibilities and requirements…"></textarea></label></div><p class="fine-print">Enter details from the original listing. Unknown location or experience will need review. Adding a URL does not scrape the website.</p><button class="button primary full">Add and check match →</button></form></dialog>
+<dialog id="delete-dialog"><button class="dialog-close" data-action="close-dialog" aria-label="Close account deletion">×</button><span class="eyebrow">YOUR DATA, YOUR CHOICE</span><h2>Remove your workspace?</h2><p>This deletes resumes, profiles, imported jobs, and application history. Your sign-in identifier, past trial usage, and payment records are retained. Active or uncertain submissions must be resolved first.</p><form id="delete-form"><label class="check"><input type="checkbox" required>I understand this cannot be undone.</label><button class="button primary full" type="submit">Delete workspace data</button></form></dialog>
+</body>
+</html>

@@ -1,0 +1,31 @@
+.env
+backend/deployment.env
+.venv/
+runtime/
+__pycache__/
+*.pyc
+.pytest_cache/
+.job_agent_cache/
+data/
+documents/
+outputs/
+artifacts/
+node_modules/
+.tools/
+apps/web/dist/
+*.db
+*.db-wal
+*.db-shm
+
+# Keep the public Apply repository focused on the deployable product. These local
+# desktop workflows contain owner-specific settings or supporting assets.
+archive/
+assets/
+document_workflow/
+linkedin_posting/
+job_applications/*
+!job_applications/__init__.py
+!job_applications/matching.py
+tests/*
+!tests/test_job_matching.py
+docs/NAUKRI.md

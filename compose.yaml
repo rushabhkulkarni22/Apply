@@ -1,0 +1,64 @@
+name: applywell
+services:
+  database:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: applywell
+      POSTGRES_USER: applywell
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in backend/deployment.env}
+    volumes:
+      - database:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U applywell -d applywell"]
+      interval: 5s
+      retries: 10
+    restart: unless-stopped
+  init:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    env_file: backend/deployment.env
+    environment:
+      DATABASE_URL: postgresql+psycopg://applywell:${POSTGRES_PASSWORD}@database/applywell
+    command: ["python", "-m", "backend.migrate"]
+    depends_on:
+      database:
+        condition: service_healthy
+  web:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    env_file: backend/deployment.env
+    environment:
+      DATABASE_URL: postgresql+psycopg://applywell:${POSTGRES_PASSWORD}@database/applywell
+      STORAGE_DIR: /app/runtime/resumes
+    ports:
+      - "127.0.0.1:8000:8000"
+    volumes:
+      - resumes:/app/runtime/resumes
+    depends_on:
+      init:
+        condition: service_completed_successfully
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health')"]
+      interval: 30s
+      retries: 3
+  worker:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    env_file: backend/deployment.env
+    environment:
+      DATABASE_URL: postgresql+psycopg://applywell:${POSTGRES_PASSWORD}@database/applywell
+      STORAGE_DIR: /app/runtime/resumes
+    command: ["python", "-m", "backend.app.worker"]
+    volumes:
+      - resumes:/app/runtime/resumes
+    depends_on:
+      init:
+        condition: service_completed_successfully
+    restart: unless-stopped
+volumes:
+  database:
+  resumes:

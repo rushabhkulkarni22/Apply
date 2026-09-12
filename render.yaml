@@ -1,0 +1,29 @@
+services:
+  - type: web
+    name: applywell
+    runtime: docker
+    plan: free
+    healthCheckPath: /api/health
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: DEMO_ENABLED
+        value: "false"
+      - key: RESUME_STORAGE
+        value: database
+      - key: SALES_ENABLED
+        value: "false"
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+      - key: RAZORPAY_KEY_ID
+        sync: false
+      - key: RAZORPAY_KEY_SECRET
+        sync: false
+      - key: RAZORPAY_WEBHOOK_SECRET
+        sync: false
+      - key: PROVIDER_URL
+        sync: false
+      - key: PROVIDER_TOKEN
+        sync: false

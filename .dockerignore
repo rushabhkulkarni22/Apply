@@ -1,0 +1,16 @@
+*
+!backend/
+!backend/**
+!apps/
+!apps/web/
+!apps/web/**
+!job_applications/
+!job_applications/matching.py
+backend/deployment.env
+backend/tests/
+backend/__pycache__/
+backend/app/__pycache__/
+apps/web/node_modules/
+apps/web/dist/
+**/.env
+**/.env.*
