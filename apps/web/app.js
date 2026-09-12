@@ -96,6 +96,9 @@ function render(){
 async function openRun(){
   if(!state.resumes.length||!state.profile){location.hash='profile';toast('Upload a resume and confirm your profile first.');return;}
   $('#run-resume').innerHTML=state.resumes.map(r=>`<option value="${r.id}">${esc(r.filename)}</option>`).join('');
+  const dailyAvailable=state.user.demo||state.config.delivery==='provider';
+  $('#daily-option').hidden=!dailyAvailable;
+  if(!dailyAvailable)$('#daily-option input').checked=false;
   $('#run-mode-description').textContent=state.user.demo?'This demo simulates delivery using sample jobs. It never submits to employers.':state.config.delivery==='provider'?'This run sends your selected resume and confirmed profile to the configured application provider for eligible jobs.':'This deployment prepares manual applications. Open the job links to submit yourself. No credits are charged.';
   $('#run-dialog').showModal();
 }
@@ -161,7 +164,7 @@ document.addEventListener('submit',async(event)=>{
       await api('/jobs',{method:'POST',body:{jobs:[body]}});$('#import-dialog').close();form.reset();await refresh();toast('Job added and evaluated.');
     }
     if(form.id==='run-form'){
-      body.limit=Number(body.limit);body.daily=values.has('daily');body.authorized=values.has('authorized');
+      body.limit=Number(body.limit);body.daily=(state.user.demo||state.config.delivery==='provider')&&values.has('daily');body.authorized=values.has('authorized');
       await api('/runs',{method:'POST',body,headers:{'Idempotency-Key':crypto.randomUUID()}});$('#run-dialog').close();await refresh(false);location.hash='applications';render();toast('Run queued. The background worker will process it.');
     }
   }catch(e){toast(e.message,true);}finally{if(submit)submit.disabled=false;}
